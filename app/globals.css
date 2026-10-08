@@ -3,6 +3,20 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Item status colors — single source of truth for the checklist color
+     system. Derived display color (green/orange/purple/partial) is computed
+     from status + quantities per the item model, never stored as-is. */
+  --status-have: #16a34a;
+  --status-have-bg: #dcfce7;
+  --status-missing: #ea580c;
+  --status-missing-bg: #ffedd5;
+  --status-other-gig: #9333ea;
+  --status-other-gig-bg: #f3e8ff;
+  --status-partial: #ca8a04;
+  --status-partial-bg: #fef9c3;
+  --status-unmarked: #9ca3af;
+  --status-unmarked-bg: #f3f4f6;
 }
 
 @theme inline {
@@ -10,6 +24,17 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-status-have: var(--status-have);
+  --color-status-have-bg: var(--status-have-bg);
+  --color-status-missing: var(--status-missing);
+  --color-status-missing-bg: var(--status-missing-bg);
+  --color-status-other-gig: var(--status-other-gig);
+  --color-status-other-gig-bg: var(--status-other-gig-bg);
+  --color-status-partial: var(--status-partial);
+  --color-status-partial-bg: var(--status-partial-bg);
+  --color-status-unmarked: var(--status-unmarked);
+  --color-status-unmarked-bg: var(--status-unmarked-bg);
 }
 
 @media (prefers-color-scheme: dark) {
