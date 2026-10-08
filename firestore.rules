@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function eventData(eventId) {
+      return get(/databases/$(database)/documents/events/$(eventId)).data;
+    }
+
+    function roleIn(eventId, roles) {
+      return isSignedIn() && eventData(eventId).members[request.auth.uid] in roles;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /events/{eventId} {
+      allow read: if roleIn(eventId, ["admin", "crew", "viewer"]);
+      allow create: if isSignedIn() &&
+        request.resource.data.members[request.auth.uid] == "admin";
+      allow update, delete: if roleIn(eventId, ["admin"]);
+
+      match /items/{itemId} {
+        allow read: if roleIn(eventId, ["admin", "crew", "viewer"]);
+        allow create, delete: if roleIn(eventId, ["admin"]);
+        allow update: if roleIn(eventId, ["admin", "crew"]);
+      }
+
+      match /activity/{logId} {
+        allow read: if roleIn(eventId, ["admin", "crew", "viewer"]);
+        allow create: if roleIn(eventId, ["admin", "crew"]);
+        allow update, delete: if false;
+      }
+
+      match /imports/{importId} {
+        allow read, write: if roleIn(eventId, ["admin"]);
+      }
+    }
+  }
+}

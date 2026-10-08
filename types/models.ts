@@ -7,6 +7,7 @@ export interface UserProfile {
   name: string;
   email: string;
   photoURL?: string;
+  updatedAt?: Timestamp;
 }
 
 export interface EventDoc {
