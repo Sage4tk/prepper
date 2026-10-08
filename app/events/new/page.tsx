@@ -1,9 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { createEvent } from "@/lib/firebase/events";
+import { createImportDoc, newImportId, saveExtractedItems, uploadImportPdf } from "@/lib/firebase/imports";
+import { extractItemsFromPdf, MAX_PDF_BYTES } from "@/lib/pdf-extract";
 
 export default function NewEventPage() {
   const { user } = useAuth();
@@ -12,24 +14,55 @@ export default function NewEventPage() {
   const [date, setDate] = useState("");
   const [venue, setVenue] = useState("");
   const [client, setClient] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [step, setStep] = useState<"idle" | "creating" | "uploading" | "extracting">("idle");
   const [error, setError] = useState<string | null>(null);
+
+  const submitting = step !== "idle";
+
+  function handlePdfChange(changeEvent: ChangeEvent<HTMLInputElement>) {
+    const file = changeEvent.target.files?.[0] ?? null;
+    if (file && file.size > MAX_PDF_BYTES) {
+      setError("PDF is larger than the 20 MB limit.");
+      changeEvent.target.value = "";
+      setPdfFile(null);
+      return;
+    }
+    setError(null);
+    setPdfFile(file);
+  }
 
   async function handleSubmit(formEvent: FormEvent) {
     formEvent.preventDefault();
     if (!user) return;
 
-    setSubmitting(true);
     setError(null);
     try {
+      setStep("creating");
       const eventId = await createEvent(
         { name, date: new Date(date), venue, client },
         user.uid,
       );
-      router.push(`/events/${eventId}`);
+
+      if (!pdfFile) {
+        router.push(`/events/${eventId}`);
+        return;
+      }
+
+      const importId = newImportId(eventId);
+
+      setStep("uploading");
+      const pdfPath = await uploadImportPdf(eventId, importId, pdfFile);
+      await createImportDoc(eventId, importId, pdfPath);
+
+      setStep("extracting");
+      const items = await extractItemsFromPdf(pdfFile);
+      await saveExtractedItems(eventId, importId, items);
+
+      router.push(`/events/${eventId}/import/${importId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create event.");
-      setSubmitting(false);
+      setStep("idle");
     }
   }
 
@@ -75,6 +108,18 @@ export default function NewEventPage() {
           />
         </Field>
 
+        <Field label="Equipment list PDF (optional)">
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handlePdfChange}
+            className="text-sm file:mr-3 file:rounded-full file:border-0 file:bg-zinc-200 file:px-3 file:py-1.5 file:text-sm file:font-medium dark:file:bg-zinc-800"
+          />
+          <span className="text-xs font-normal text-zinc-500">
+            If attached, Claude extracts the items for you to review before they&apos;re added to the checklist.
+          </span>
+        </Field>
+
         {error ? <p className="text-sm text-status-missing">{error}</p> : null}
 
         <button
@@ -82,7 +127,10 @@ export default function NewEventPage() {
           disabled={submitting}
           className="mt-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background disabled:opacity-50"
         >
-          {submitting ? "Creating…" : "Create event"}
+          {step === "creating" && "Creating event…"}
+          {step === "uploading" && "Uploading PDF…"}
+          {step === "extracting" && "Reading equipment list…"}
+          {step === "idle" && "Create event"}
         </button>
       </form>
     </div>

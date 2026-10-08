@@ -1,0 +1,10 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /events/{eventId}/imports/{fileName} {
+      allow read, write: if request.auth != null &&
+        firestore.get(/databases/(default)/documents/events/$(eventId)).data.members[request.auth.uid] == "admin";
+    }
+  }
+}
