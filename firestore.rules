@@ -7,12 +7,10 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function eventData(eventId) {
-      return get(/databases/$(database)/documents/events/$(eventId)).data;
-    }
-
-    function roleIn(eventId, roles) {
-      return isSignedIn() && eventData(eventId).members[request.auth.uid] in roles;
+    // Only needed for subcollections, where `resource` refers to the child
+    // doc, not the parent event — so the member role has to be fetched.
+    function memberRole(eventId) {
+      return get(/databases/$(database)/documents/events/$(eventId)).data.members[request.auth.uid];
     }
 
     match /users/{userId} {
@@ -21,25 +19,24 @@ service cloud.firestore {
     }
 
     match /events/{eventId} {
-      allow read: if roleIn(eventId, ["admin", "crew", "viewer"]);
-      allow create: if isSignedIn() &&
-        request.resource.data.members[request.auth.uid] == "admin";
-      allow update, delete: if roleIn(eventId, ["admin"]);
+      allow read: if isSignedIn() && resource.data.members[request.auth.uid] in ["admin", "crew", "viewer"];
+      allow create: if isSignedIn() && request.resource.data.members[request.auth.uid] == "admin";
+      allow update, delete: if isSignedIn() && resource.data.members[request.auth.uid] == "admin";
 
       match /items/{itemId} {
-        allow read: if roleIn(eventId, ["admin", "crew", "viewer"]);
-        allow create, delete: if roleIn(eventId, ["admin"]);
-        allow update: if roleIn(eventId, ["admin", "crew"]);
+        allow read: if isSignedIn() && memberRole(eventId) in ["admin", "crew", "viewer"];
+        allow create, delete: if isSignedIn() && memberRole(eventId) == "admin";
+        allow update: if isSignedIn() && memberRole(eventId) in ["admin", "crew"];
       }
 
       match /activity/{logId} {
-        allow read: if roleIn(eventId, ["admin", "crew", "viewer"]);
-        allow create: if roleIn(eventId, ["admin", "crew"]);
+        allow read: if isSignedIn() && memberRole(eventId) in ["admin", "crew", "viewer"];
+        allow create: if isSignedIn() && memberRole(eventId) in ["admin", "crew"];
         allow update, delete: if false;
       }
 
       match /imports/{importId} {
-        allow read, write: if roleIn(eventId, ["admin"]);
+        allow read, write: if isSignedIn() && memberRole(eventId) == "admin";
       }
     }
   }

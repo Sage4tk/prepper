@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { Checklist } from "@/components/checklist/Checklist";
 import { subscribeToEvent, type EventSummary } from "@/lib/firebase/events";
 
 export default function EventWorkspacePage() {
@@ -32,8 +33,8 @@ export default function EventWorkspacePage() {
       </p>
       <p className="mt-1 text-sm text-zinc-400">Your role: {role ?? "none"}</p>
 
-      <div className="mt-8 rounded-lg border border-dashed border-black/[.1] p-6 text-sm text-zinc-500 dark:border-white/[.145]">
-        The checklist UI (items grouped by section, status marking) is the next build step.
+      <div className="mt-6">
+        <Checklist eventId={event.id} role={role} />
       </div>
     </div>
   );
