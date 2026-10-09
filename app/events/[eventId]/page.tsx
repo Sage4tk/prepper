@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { Checklist } from "@/components/checklist/Checklist";
+import { RevisionUpload } from "@/components/import/RevisionUpload";
 import { subscribeToEvent, type EventSummary } from "@/lib/firebase/events";
 
 export default function EventWorkspacePage() {
@@ -31,7 +32,10 @@ export default function EventWorkspacePage() {
       <p className="mt-1 text-zinc-500">
         {event.venue} · {event.client} · {event.date.toDate().toLocaleDateString()}
       </p>
-      <p className="mt-1 text-sm text-zinc-400">Your role: {role ?? "none"}</p>
+      <p className="mt-1 text-sm text-zinc-400">
+        Your role: {role ?? "none"} · list v{event.listVersion}
+      </p>
+      {role === "admin" ? <RevisionUpload eventId={event.id} currentVersion={event.listVersion} /> : null}
 
       <div className="mt-6">
         <Checklist eventId={event.id} role={role} />

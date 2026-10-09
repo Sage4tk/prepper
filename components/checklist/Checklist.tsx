@@ -18,10 +18,11 @@ const SECTION_LABELS: Record<ItemSection, string> = {
   other: "Other",
 };
 
-type Filter = "all" | "unmarked" | "missing" | "other_gig" | "mine";
+type Filter = "all" | "recheck" | "unmarked" | "missing" | "other_gig" | "mine";
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: "all", label: "All" },
+  { value: "recheck", label: "Re-check" },
   { value: "unmarked", label: "Unmarked" },
   { value: "missing", label: "Missing" },
   { value: "other_gig", label: "Other gig" },
@@ -43,6 +44,8 @@ export function Checklist({ eventId, role }: { eventId: string; role: EventMembe
   const filteredItems = useMemo(() => {
     if (!items) return [];
     switch (filter) {
+      case "recheck":
+        return items.filter((item) => item.needsRecheck);
       case "unmarked":
         return items.filter((item) => item.status === "unmarked");
       case "missing":
@@ -58,7 +61,7 @@ export function Checklist({ eventId, role }: { eventId: string; role: EventMembe
 
   const progress = useMemo(() => {
     if (!items || items.length === 0) return 0;
-    const resolved = items.filter((item) => item.status !== "unmarked").length;
+    const resolved = items.filter((item) => item.status !== "unmarked" && !item.needsRecheck).length;
     return Math.round((resolved / items.length) * 100);
   }, [items]);
 

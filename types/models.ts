@@ -39,6 +39,9 @@ export interface ItemDoc {
   otherGigName?: string;
   qtyOnOtherGig?: number;
   expectedBack?: Timestamp;
+  /** Set when a revised list changed qtyNeeded; cleared once someone re-checks the item. */
+  needsRecheck?: boolean;
+  prevQtyNeeded?: number;
   sourceRef?: {
     page: number;
     line: number;

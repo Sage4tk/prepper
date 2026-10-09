@@ -72,6 +72,10 @@ export function ItemRow({
     commit({ qtyOnOtherGig: next }, [{ field: "qtyOnOtherGig", from: current, to: next }]);
   }
 
+  function clearRecheck() {
+    commit({ needsRecheck: false }, [{ field: "needsRecheck", from: true, to: false }]);
+  }
+
   function commitNotes(value: string) {
     if (value === (item.notes ?? "")) return;
     commit({ notes: value }, [{ field: "notes", from: item.notes ?? "", to: value }]);
@@ -112,6 +116,20 @@ export function ItemRow({
           </button>
         ) : null}
       </div>
+
+      {item.needsRecheck ? (
+        <div className="mt-2 flex items-center justify-between gap-3 rounded-md bg-status-partial/10 px-2 py-1 text-xs text-status-partial">
+          <span>
+            Needs re-check: quantity changed{item.prevQtyNeeded !== undefined ? ` from ${item.prevQtyNeeded}` : ""} to{" "}
+            {item.qtyNeeded}
+          </span>
+          {canMark ? (
+            <button onClick={clearRecheck} className="shrink-0 font-semibold underline">
+              Re-checked
+            </button>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1">
