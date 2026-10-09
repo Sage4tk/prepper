@@ -10,6 +10,7 @@ const SECTIONS: { value: ItemSection; label: string }[] = [
   { value: "lighting", label: "Lighting" },
   { value: "video", label: "Video" },
   { value: "staging", label: "Staging" },
+  { value: "power", label: "Power" },
   { value: "other", label: "Other" },
 ];
 

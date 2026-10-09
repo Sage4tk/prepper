@@ -8,12 +8,13 @@ import type { EventMemberRole, ItemSection } from "@/types/models";
 import { AddItemForm } from "./AddItemForm";
 import { ItemRow } from "./ItemRow";
 
-const SECTION_ORDER: ItemSection[] = ["audio", "lighting", "video", "staging", "other"];
+const SECTION_ORDER: ItemSection[] = ["audio", "lighting", "video", "staging", "power", "other"];
 const SECTION_LABELS: Record<ItemSection, string> = {
   audio: "Audio",
   lighting: "Lighting",
   video: "Video",
   staging: "Staging",
+  power: "Power",
   other: "Other",
 };
 

@@ -142,24 +142,27 @@ A misread quantity means a missing mic on show day, so the review step is not op
 ## 11. Build phases
 
 ### Phase 1: Core checklist (MVP)
-- [ ] Next.js + Firebase project setup, auth, deploy pipeline
-- [ ] Events and members, with the invite flow
-- [ ] Manual item creation and editing
-- [ ] Status marking with partial quantities
-- [ ] Realtime sync, mobile-first layout, offline persistence
-- [ ] Activity log
-- [ ] Security rules and tests
+- [x] Next.js + Firebase project setup, auth
+- [ ] Deploy pipeline
+- [x] Events and members
+- [ ] Invite flow (admin adds crew by email/uid)
+- [x] Manual item creation and editing
+- [x] Status marking with partial quantities
+- [x] Realtime sync, mobile-first layout, offline persistence
+- [ ] Activity log (writes are implemented on every item change; no view screen yet)
+- [ ] Security rules and tests (rules written and published; no automated tests yet)
 
 **Exit test:** run one real event prep with the team using manually entered items.
 
 ### Phase 2: PDF import
-- [ ] Upload to Storage, server-side extraction with Claude
-- [ ] Structured JSON schema and prompt, tested against 10+ real past lists
-- [ ] Review screen with side-by-side PDF view
-- [ ] Apply to workspace
-- [ ] Scan and photo handling
+- [x] Upload to Storage, server-side extraction with Claude
+- [ ] Structured JSON schema and prompt, tested against 10+ real past lists (schema/prompt built; not yet validated against a real sample set)
+- [ ] Review screen with side-by-side PDF view (editable review table is built; no side-by-side PDF viewer yet)
+- [x] Apply to workspace
+- [ ] Scan and photo handling (should work via Claude's native PDF vision; untested on an actual scanned doc)
 
-### Phase 3: Revisions
+### Phase 3: Revisions — pick up here next
+
 - [ ] Re-upload, matching, and diff view
 - [ ] Status preservation and "needs re-check" flagging
 

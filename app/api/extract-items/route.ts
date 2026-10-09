@@ -9,7 +9,7 @@ const MAX_PDF_BYTES = 20 * 1024 * 1024;
 
 const ExtractedItemSchema = z.object({
   name: z.string(),
-  section: z.enum(["audio", "lighting", "video", "staging", "other"]),
+  section: z.enum(["audio", "lighting", "video", "staging", "power", "other"]),
   qtyNeeded: z.number().int().min(1),
   notes: z.string().optional(),
   sourceRef: z
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
   try {
     const response = await client.messages.parse({
-      model: "claude-opus-5",
+      model: "claude-haiku-5-5",
       max_tokens: 16000,
       thinking: { type: "adaptive" },
       messages: [
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
                 "Extract every distinct equipment line item from this AV equipment list.",
                 "For each item give:",
                 "- name: the equipment name only, without a quantity prefix",
-                "- section: your best guess of audio, lighting, video, staging, or other, based on headers or context (default to 'other' if unclear)",
+                "- section: your best guess of audio, lighting, video, staging, power (mains power cabling and distribution only, e.g. Socapex, CEEForm, TRUE1; not signal cables), or other, based on headers or context (default to 'other' if unclear)",
                 "- qtyNeeded: an integer quantity needed (assume 1 if not specified)",
                 "- notes: any extra detail on the line (model numbers, conditions) - omit if there is none",
                 "- sourceRef: the 1-indexed page number and a line/row number within that page where the item appears",

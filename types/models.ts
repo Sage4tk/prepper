@@ -23,7 +23,7 @@ export interface EventDoc {
   archived: boolean;
 }
 
-export type ItemSection = "audio" | "lighting" | "video" | "staging" | "other";
+export type ItemSection = "audio" | "lighting" | "video" | "staging" | "power" | "other";
 
 export type ItemStatus = "unmarked" | "have" | "missing" | "other_gig";
 
